@@ -38,7 +38,7 @@ However, brute force recomputes everything from scratch.
 This leads to:
 - unnecessary repeated work
 - nested loops
-- time complexity often degrading to O(n²) or worse
+- time complexity often degrading to `O(n²)` or worse
 
 Sliding Window exists to eliminate this redundancy.
 
@@ -99,11 +99,9 @@ Characteristics:
 - window slides one step at a time
 - answer is updated only when window size equals k
 
-This is the simplest form of sliding window and is usually taught first.
-
 Complexity:
-- Time: O(n)
-- Space: O(1)
+- Time: `O(n)`
+- Space: `O(1)`
 
 ---
 
@@ -121,11 +119,9 @@ Characteristics:
 - left pointer shrinks to restore validity
 - window size is a result, not a decision
 
-These problems are more complex but far more powerful.
-
 Complexity:
-- Time: O(n)
-- Space: O(1) or O(k), depending on window state
+- Time: `O(n)`
+- Space: `O(1)` or `O(k)`
 
 ---
 
@@ -165,74 +161,252 @@ The window state becomes a **data structure**, not just a number.
 
 Sliding Window works in linear time because:
 
-- the right pointer moves forward at most n times
-- the left pointer moves forward at most n times
+- the right pointer moves forward at most `n` times
+- the left pointer moves forward at most `n` times
 - no pointer ever moves backward
 
 Each element is processed a constant number of times.
-
-Total operations are bounded by a small multiple of n.
 
 ---
 
 ## 10) When Sliding Window Does NOT Apply
 
-Sliding Window relies on predictable behavior when expanding or shrinking the window.
-
-It often fails when:
-- negative numbers are involved in sum-based constraints
+Sliding Window often fails when:
+- negative numbers break monotonic behavior
 - shrinking the window does not move closer to validity
 
-In such cases, other patterns like Prefix Sum or HashMap-based approaches are required.
-
-Recognizing this boundary is critical in interviews.
+In such cases, other patterns like Prefix Sum are required.
 
 ---
 
 ## 11) Common Conceptual Mistakes
 
-- Treating the window as static data instead of a view
-- Updating answers before the window is valid
+- Treating the window as static data
+- Updating answers before window validity
 - Forgetting to clean up window state
-- Assuming sliding window works for all subarray problems
-
-Most incorrect solutions fail due to logic, not syntax.
+- Assuming sliding window applies universally
 
 ---
 
 ## 12) Minimal Python Templates
 
-### Fixed-Size Window
+These are **NOT problem solutions** — they are **templates**.
+
+---
+
+## Pattern A — Fixed-Size Window (Aggregation)
+
+### Use when:
+- subarray size is exactly `k`
+- sum / average / max / min
+
+### Invariant:
+Window size is always `k`.
 
 ```python
-def fixed_window(nums, k):
+def fixed_size_window(nums, k):
     left = 0
-    window_state = 0
+    window_sum = 0
+    result = None
 
     for right in range(len(nums)):
-        window_state += nums[right]
+        window_sum += nums[right]
 
         if right >= k - 1:
-            # update answer using window_state
-            window_state -= nums[left]
+            # update result using window_sum
+            # result = ...
+            window_sum -= nums[left]
             left += 1
+
+    return result
+```
+
+Time: `O(n)`  
+Space: `O(1)`
+
+---
+
+## Pattern B — Variable Window (Smallest Valid Window)
+
+### Use when:
+- find smallest subarray / substring
+- condition like `sum >= target`
+
+### Invariant:
+Shrink window **while valid**.
+
+```python
+def smallest_window(nums, target):
+    left = 0
+    window_sum = 0
+    best = float("inf")
+
+    for right in range(len(nums)):
+        window_sum += nums[right]
+
+        while window_sum >= target:
+            best = min(best, right - left + 1)
+            window_sum -= nums[left]
+            left += 1
+
+    return 0 if best == float("inf") else best
 ```
 
 ---
 
-### Variable-Size Window
+## Pattern C — Variable Window (Longest Valid Window)
+
+### Use when:
+- longest substring / subarray
+- constraints like "at most K"
+
+### Invariant:
+Shrink only when window becomes invalid.
 
 ```python
-def variable_window(nums):
+def longest_window(nums):
     left = 0
-    window_state = 0
+    best = 0
 
     for right in range(len(nums)):
-        window_state += nums[right]
+        # update window state
 
-        while False:  # replace with constraint
-            window_state -= nums[left]
+        while False:  # invalid condition
+            # remove nums[left]
             left += 1
+
+        best = max(best, right - left + 1)
+
+    return best
+```
+
+---
+
+## Pattern D — Frequency-Based Window (Distinct Elements)
+
+### Use when:
+- strings
+- at most / exactly K distinct characters
+
+```python
+from collections import defaultdict
+
+def freq_window(s, k):
+    left = 0
+    freq = defaultdict(int)
+    best = 0
+
+    for right, ch in enumerate(s):
+        freq[ch] += 1
+
+        while len(freq) > k:
+            freq[s[left]] -= 1
+            if freq[s[left]] == 0:
+                del freq[s[left]]
+            left += 1
+
+        best = max(best, right - left + 1)
+
+    return best
+```
+
+---
+
+## Pattern E — Replacement Window
+
+### Use when:
+- allowed to replace at most `k`
+- longest repeating substring / ones
+
+### Key Formula:
+```
+window_size - max_frequency <= k
+```
+
+```python
+from collections import defaultdict
+
+def replacement_window(s, k):
+    left = 0
+    freq = defaultdict(int)
+    max_freq = 0
+    best = 0
+
+    for right, ch in enumerate(s):
+        freq[ch] += 1
+        max_freq = max(max_freq, freq[ch])
+
+        if (right - left + 1) - max_freq > k:
+            freq[s[left]] -= 1
+            left += 1
+
+        best = max(best, right - left + 1)
+
+    return best
+```
+
+---
+
+## Pattern F — Fixed Window + Pattern Matching (Anagram / Permutation)
+
+```python
+from collections import Counter
+
+def permutation_window(s, p):
+    need = Counter(p)
+    matched = 0
+    left = 0
+
+    for right, ch in enumerate(s):
+        if ch in need:
+            need[ch] -= 1
+            if need[ch] == 0:
+                matched += 1
+
+        if right >= len(p) - 1:
+            if matched == len(need):
+                return True
+
+            left_char = s[left]
+            left += 1
+            if left_char in need:
+                if need[left_char] == 0:
+                    matched -= 1
+                need[left_char] += 1
+
+    return False
+```
+
+---
+
+## Pattern G — Minimum Window Containing Pattern
+
+```python
+from collections import Counter
+
+def min_window(s, t):
+    need = Counter(t)
+    missing = len(t)
+    left = 0
+    start = 0
+    min_len = float("inf")
+
+    for right, ch in enumerate(s):
+        if need[ch] > 0:
+            missing -= 1
+        need[ch] -= 1
+
+        while missing == 0:
+            if right - left + 1 < min_len:
+                min_len = right - left + 1
+                start = left
+
+            need[s[left]] += 1
+            if need[s[left]] > 0:
+                missing += 1
+            left += 1
+
+    return "" if min_len == float("inf") else s[start:start+min_len]
 ```
 
 ---
@@ -240,37 +414,27 @@ def variable_window(nums):
 ## 13) Practice Problems — Sliding Window
 
 ### Easy (5)
-
 1. https://leetcode.com/problems/maximum-average-subarray-i/
 2. https://leetcode.com/problems/max-consecutive-ones/
 3. https://leetcode.com/problems/minimum-operations-to-reduce-x-to-zero/
 4. https://leetcode.com/problems/count-number-of-nice-subarrays/
 5. https://www.geeksforgeeks.org/find-subarray-with-given-sum/
 
----
-
 ### Basic / Lower-Medium (5)
-
 6. https://www.geeksforgeeks.org/find-maximum-sum-subarray-of-size-k/
 7. https://www.geeksforgeeks.org/smallest-subarray-with-sum-greater-than-x/
 8. https://leetcode.com/problems/longest-substring-without-repeating-characters/
 9. https://leetcode.com/problems/longest-substring-with-at-most-two-distinct-characters/
 10. https://leetcode.com/problems/binary-subarrays-with-sum/
 
----
-
 ### Medium (5)
-
 11. https://leetcode.com/problems/fruit-into-baskets/
 12. https://leetcode.com/problems/minimum-size-subarray-sum/
 13. https://leetcode.com/problems/longest-repeating-character-replacement/
 14. https://leetcode.com/problems/permutation-in-string/
 15. https://leetcode.com/problems/find-all-anagrams-in-a-string/
 
----
-
 ### Hard (5)
-
 16. https://leetcode.com/problems/minimum-window-substring/
 17. https://leetcode.com/problems/substring-with-concatenation-of-all-words/
 18. https://leetcode.com/problems/max-consecutive-ones-iii/
