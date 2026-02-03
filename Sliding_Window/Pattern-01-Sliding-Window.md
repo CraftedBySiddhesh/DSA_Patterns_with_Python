@@ -423,28 +423,29 @@ def min_window(s, t):
 
 ### Easy (5)
 1. https://leetcode.com/problems/maximum-average-subarray-i/
-2. https://leetcode.com/problems/max-consecutive-ones/
-3. https://leetcode.com/problems/minimum-operations-to-reduce-x-to-zero/
-4. https://leetcode.com/problems/count-number-of-nice-subarrays/
-5. https://www.geeksforgeeks.org/find-subarray-with-given-sum/
+2. https://leetcode.com/problems/contains-duplicate-ii/
+3. https://leetcode.com/problems/number-of-sub-arrays-of-size-k-and-average-greater-than-or-equal-to-threshold/
+4. https://leetcode.com/problems/defuse-the-bomb/
+5. https://leetcode.com/problems/diet-plan-performance/
 
 ### Basic / Lower-Medium (5)
-6. https://www.geeksforgeeks.org/find-maximum-sum-subarray-of-size-k/
-7. https://www.geeksforgeeks.org/smallest-subarray-with-sum-greater-than-x/
-8. https://leetcode.com/problems/longest-substring-without-repeating-characters/
-9. https://leetcode.com/problems/longest-substring-with-at-most-two-distinct-characters/
-10. https://leetcode.com/problems/binary-subarrays-with-sum/
+6. https://leetcode.com/problems/minimum-size-subarray-sum/
+7. https://leetcode.com/problems/max-consecutive-ones-iii/
+8. https://leetcode.com/problems/maximum-number-of-vowels-in-a-substring-of-given-length/
+9. https://leetcode.com/problems/longest-subarray-of-1s-after-deleting-one-element/
+10. https://leetcode.com/problems/get-equal-substrings-within-budget/
 
 ### Medium (5)
-11. https://leetcode.com/problems/fruit-into-baskets/
-12. https://leetcode.com/problems/minimum-size-subarray-sum/
-13. https://leetcode.com/problems/longest-repeating-character-replacement/
-14. https://leetcode.com/problems/permutation-in-string/
+11. https://leetcode.com/problems/longest-substring-without-repeating-characters/
+12. https://leetcode.com/problems/longest-substring-with-at-most-k-distinct-characters/
+13. https://leetcode.com/problems/fruit-into-baskets/
+14. https://leetcode.com/problems/subarrays-with-k-different-integers/
 15. https://leetcode.com/problems/find-all-anagrams-in-a-string/
 
 ### Hard (5)
 16. https://leetcode.com/problems/minimum-window-substring/
 17. https://leetcode.com/problems/substring-with-concatenation-of-all-words/
-18. https://leetcode.com/problems/max-consecutive-ones-iii/
-19. https://leetcode.com/problems/longest-substring-with-at-least-k-repeating-characters/
-20. https://leetcode.com/problems/count-subarrays-with-fixed-bounds/
+18. https://leetcode.com/problems/longest-repeating-character-replacement/
+19. https://leetcode.com/problems/sliding-window-maximum/
+20. https://leetcode.com/problems/minimum-number-of-k-consecutive-bit-flips/
+
