@@ -408,7 +408,15 @@ def min_window(s, t):
 
     return "" if min_len == float("inf") else s[start:start+min_len]
 ```
-
+| Question asks         | Use this pattern               |
+| --------------------- | ------------------------------ |
+| Size exactly K        | Fixed-size window              |
+| Smallest valid window | Variable + shrink while valid  |
+| Longest valid window  | Variable + shrink when invalid |
+| Distinct characters   | Frequency window               |
+| Replace ≤ K           | Replacement window             |
+| Anagram / permutation | Fixed-length + frequency       |
+| Must contain pattern  | Min-window pattern             |
 ---
 
 ## 13) Practice Problems — Sliding Window
