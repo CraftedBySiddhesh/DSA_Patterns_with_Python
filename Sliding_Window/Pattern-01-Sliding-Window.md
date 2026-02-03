@@ -193,230 +193,91 @@ In such cases, other patterns like Prefix Sum are required.
 These are **NOT problem solutions** — they are **templates**.
 
 ---
+## Pattern 1 — Fixed-Size Sliding Window
 
-## Pattern A — Fixed-Size Window (Aggregation)
+### When to Use
+Use this pattern when the window size is explicitly fixed by the problem.
 
-### Use when:
-- subarray size is exactly `k`
-- sum / average / max / min
+Typical signals:
+- subarray or substring of size k
+- k consecutive elements
+- |i - j| <= k
+- average / sum of k elements
 
-### Invariant:
-Window size is always `k`.
+### Invariant
+The window size never changes.
 
+right - left + 1 == k
+
+### Mental Model
+- Slide the window one step at a time
+- One element enters the window
+- One element leaves the window
+- Update window state incrementally
+
+### Window State Examples
+- running sum
+- set (existence check)
+- frequency map
+- count
+
+### Template
 ```python
 def fixed_size_window(nums, k):
     left = 0
-    window_sum = 0
-    result = None
+    window_state = initial_state
+    result = initial_value
 
     for right in range(len(nums)):
-        window_sum += nums[right]
+        add nums[right] to window_state
 
         if right >= k - 1:
-            # update result using window_sum
-            # result = ...
-            window_sum -= nums[left]
+            update result using window_state
+            remove nums[left] from window_state
             left += 1
 
     return result
 ```
-
-Time: `O(n)`  
-Space: `O(1)`
-
 ---
 
-## Pattern B — Variable Window (Smallest Valid Window)
+## Pattern 2 — Variable-Size Sliding Window
 
-### Use when:
-- find smallest subarray / substring
-- condition like `sum >= target`
+### When to Use
+Use this pattern when the window size is not fixed and must be discovered.
 
-### Invariant:
-Shrink window **while valid**.
+Typical signals:
+- longest
+- smallest
+- at most k
+- at least target
+- replace at most k
 
+### Invariant
+Window must remain valid according to a condition.
+
+### Mental Model
+- Expand using right pointer
+- Shrink using left pointer to restore validity
+- Window size is a result, not a decision
+
+### Template
 ```python
-def smallest_window(nums, target):
+def variable_size_window(nums):
     left = 0
-    window_sum = 0
-    best = float("inf")
+    window_state = initial_state
+    best = initial_value
 
     for right in range(len(nums)):
-        window_sum += nums[right]
+        add nums[right] to window_state
 
-        while window_sum >= target:
-            best = min(best, right - left + 1)
-            window_sum -= nums[left]
+        while window_invalid(window_state):
+            remove nums[left] from window_state
             left += 1
 
-    return 0 if best == float("inf") else best
-```
-
----
-
-## Pattern C — Variable Window (Longest Valid Window)
-
-### Use when:
-- longest substring / subarray
-- constraints like "at most K"
-
-### Invariant:
-Shrink only when window becomes invalid.
-
-```python
-def longest_window(nums):
-    left = 0
-    best = 0
-
-    for right in range(len(nums)):
-        # update window state
-
-        while False:  # invalid condition
-            # remove nums[left]
-            left += 1
-
-        best = max(best, right - left + 1)
+        update best using right - left + 1
 
     return best
 ```
-
----
-
-## Pattern D — Frequency-Based Window (Distinct Elements)
-
-### Use when:
-- strings
-- at most / exactly K distinct characters
-
-```python
-from collections import defaultdict
-
-def freq_window(s, k):
-    left = 0
-    freq = defaultdict(int)
-    best = 0
-
-    for right, ch in enumerate(s):
-        freq[ch] += 1
-
-        while len(freq) > k:
-            freq[s[left]] -= 1
-            if freq[s[left]] == 0:
-                del freq[s[left]]
-            left += 1
-
-        best = max(best, right - left + 1)
-
-    return best
-```
-
----
-
-## Pattern E — Replacement Window
-
-### Use when:
-- allowed to replace at most `k`
-- longest repeating substring / ones
-
-### Key Formula:
-```
-window_size - max_frequency <= k
-```
-
-```python
-from collections import defaultdict
-
-def replacement_window(s, k):
-    left = 0
-    freq = defaultdict(int)
-    max_freq = 0
-    best = 0
-
-    for right, ch in enumerate(s):
-        freq[ch] += 1
-        max_freq = max(max_freq, freq[ch])
-
-        if (right - left + 1) - max_freq > k:
-            freq[s[left]] -= 1
-            left += 1
-
-        best = max(best, right - left + 1)
-
-    return best
-```
-
----
-
-## Pattern F — Fixed Window + Pattern Matching (Anagram / Permutation)
-
-```python
-from collections import Counter
-
-def permutation_window(s, p):
-    need = Counter(p)
-    matched = 0
-    left = 0
-
-    for right, ch in enumerate(s):
-        if ch in need:
-            need[ch] -= 1
-            if need[ch] == 0:
-                matched += 1
-
-        if right >= len(p) - 1:
-            if matched == len(need):
-                return True
-
-            left_char = s[left]
-            left += 1
-            if left_char in need:
-                if need[left_char] == 0:
-                    matched -= 1
-                need[left_char] += 1
-
-    return False
-```
-
----
-
-## Pattern G — Minimum Window Containing Pattern
-
-```python
-from collections import Counter
-
-def min_window(s, t):
-    need = Counter(t)
-    missing = len(t)
-    left = 0
-    start = 0
-    min_len = float("inf")
-
-    for right, ch in enumerate(s):
-        if need[ch] > 0:
-            missing -= 1
-        need[ch] -= 1
-
-        while missing == 0:
-            if right - left + 1 < min_len:
-                min_len = right - left + 1
-                start = left
-
-            need[s[left]] += 1
-            if need[s[left]] > 0:
-                missing += 1
-            left += 1
-
-    return "" if min_len == float("inf") else s[start:start+min_len]
-```
-| Question asks         | Use this pattern               |
-| --------------------- | ------------------------------ |
-| Size exactly K        | Fixed-size window              |
-| Smallest valid window | Variable + shrink while valid  |
-| Longest valid window  | Variable + shrink when invalid |
-| Distinct characters   | Frequency window               |
-| Replace ≤ K           | Replacement window             |
-| Anagram / permutation | Fixed-length + frequency       |
-| Must contain pattern  | Min-window pattern             |
 ---
 
 ## 13) Practice Problems — Sliding Window
